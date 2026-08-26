@@ -320,7 +320,7 @@ pub fn summarize_markdown(input_text: &str, cut_ratio: f32) -> Result<SummaryRep
     let keywords = parse_keywords(&prose_for_keywords, 2)?;
     let stop_set = get_stop_set();
 
-    let orig = TextStats {
+    let orig_stats = TextStats {
         chars: input_text.chars().count(),
         words: input_text.split_whitespace().count(),
         sentences: units.len(),
@@ -329,7 +329,7 @@ pub fn summarize_markdown(input_text: &str, cut_ratio: f32) -> Result<SummaryRep
     if units.is_empty() {
         return Ok(SummaryReport {
             summary: String::new(),
-            orig,
+            orig_stats,
             summary_stats: TextStats {
                 chars: 0,
                 words: 0,
@@ -408,18 +408,18 @@ pub fn summarize_markdown(input_text: &str, cut_ratio: f32) -> Result<SummaryRep
     let mut selected_indices: HashSet<usize> = HashSet::new();
 
     if keywords.is_empty() || max_score == 0.0 {
-        let target_count = ((orig.sentences as f32 * target_ratio).ceil() as usize).max(1);
-        let step = orig.sentences as f32 / target_count as f32;
+        let target_count = ((orig_stats.sentences as f32 * target_ratio).ceil() as usize).max(1);
+        let step = orig_stats.sentences as f32 / target_count as f32;
 
         for i in 0..target_count {
-            let idx = ((i as f32 * step) as usize).min(orig.sentences - 1);
+            let idx = ((i as f32 * step) as usize).min(orig_stats.sentences - 1);
             selected_indices.insert(idx);
         }
     } else {
         let balanced_density = 0.15;
         let density_factor = (keyword_density / balanced_density).clamp(0.6, 1.4);
         let adjusted_ratio = (target_ratio * density_factor).clamp(0.05, 0.95);
-        let target_count = ((orig.sentences as f32 * adjusted_ratio).ceil() as usize).max(1);
+        let target_count = ((orig_stats.sentences as f32 * adjusted_ratio).ceil() as usize).max(1);
 
         let min_score_threshold = max_score * 0.15;
 
@@ -472,13 +472,13 @@ pub fn summarize_markdown(input_text: &str, cut_ratio: f32) -> Result<SummaryRep
     top_keywords.sort_by(|a, b| b.1.cmp(&a.1));
     top_keywords.truncate(10);
 
-    let retained_ratio = summary_stats.sentences as f32 / orig.sentences as f32;
+    let retained_ratio = summary_stats.sentences as f32 / orig_stats.sentences as f32;
     // actual cut ratio calculated as a fraction (0.0 to 1.0) based on character reduction
-    let actual_cut_ratio = 1.0 - (summary_stats.chars as f32 / orig.chars.max(1) as f32);
+    let actual_cut_ratio = 1.0 - (summary_stats.chars as f32 / orig_stats.chars.max(1) as f32);
 
     Ok(SummaryReport {
         summary,
-        orig,
+        orig_stats,
         summary_stats,
         metrics: CompressionMetrics {
             target_cut,

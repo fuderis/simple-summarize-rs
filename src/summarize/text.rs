@@ -28,7 +28,7 @@ pub fn summarize_text(input_text: &str, cut_ratio: f32) -> Result<SummaryReport>
     let stop_set = get_stop_set();
     let sentences = split_sentences(&clean_input);
 
-    let orig = TextStats {
+    let orig_stats = TextStats {
         chars: clean_input.chars().count(),
         words: clean_input.split_whitespace().count(),
         sentences: sentences.len(),
@@ -38,7 +38,7 @@ pub fn summarize_text(input_text: &str, cut_ratio: f32) -> Result<SummaryReport>
     if sentences.is_empty() {
         return Ok(SummaryReport {
             summary: String::new(),
-            orig,
+            orig_stats,
             summary_stats: TextStats {
                 chars: 0,
                 words: 0,
@@ -107,12 +107,12 @@ pub fn summarize_text(input_text: &str, cut_ratio: f32) -> Result<SummaryReport>
     // select top-scoring sentences or fallback to uniform sampling if scoring fails
     let selected = if keywords.is_empty() || max_score == 0.0 {
         // uniform fallback sampling when keywords are missing or zero-scored
-        let target_count = ((orig.sentences as f32 * target_ratio).ceil() as usize).max(1);
-        let step = orig.sentences as f32 / target_count as f32;
+        let target_count = ((orig_stats.sentences as f32 * target_ratio).ceil() as usize).max(1);
+        let step = orig_stats.sentences as f32 / target_count as f32;
 
         (0..target_count)
             .map(|i| {
-                let idx = ((i as f32 * step) as usize).min(orig.sentences - 1);
+                let idx = ((i as f32 * step) as usize).min(orig_stats.sentences - 1);
                 ScoredSentence {
                     score: 0.0,
                     order: idx,
@@ -125,7 +125,7 @@ pub fn summarize_text(input_text: &str, cut_ratio: f32) -> Result<SummaryReport>
         let balanced_density = 0.15;
         let density_factor = (keyword_density / balanced_density).clamp(0.6, 1.4);
         let adjusted_ratio = (target_ratio * density_factor).clamp(0.05, 0.95);
-        let target_count = ((orig.sentences as f32 * adjusted_ratio).ceil() as usize).max(1);
+        let target_count = ((orig_stats.sentences as f32 * adjusted_ratio).ceil() as usize).max(1);
 
         let min_score_threshold = max_score * 0.15;
         let mut picked = Vec::with_capacity(target_count);
@@ -165,13 +165,13 @@ pub fn summarize_text(input_text: &str, cut_ratio: f32) -> Result<SummaryReport>
     top_keywords.sort_by(|a, b| b.1.cmp(&a.1));
     top_keywords.truncate(10);
 
-    let retained_ratio = summary_stats.sentences as f32 / orig.sentences as f32;
+    let retained_ratio = summary_stats.sentences as f32 / orig_stats.sentences as f32;
     // actual cut ratio calculated as a fraction (0.0 to 1.0) based on character reduction
-    let actual_cut_ratio = 1.0 - (summary_stats.chars as f32 / orig.chars.max(1) as f32);
+    let actual_cut_ratio = 1.0 - (summary_stats.chars as f32 / orig_stats.chars.max(1) as f32);
 
     Ok(SummaryReport {
         summary,
-        orig,
+        orig_stats,
         summary_stats,
         metrics: CompressionMetrics {
             target_cut,

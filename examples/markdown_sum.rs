@@ -1,3 +1,4 @@
+#![cfg(feature = "markdown")]
 use simple_summarize::summarize_markdown;
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -146,15 +147,15 @@ This project is distributed under the [**GNU General Public License v3.0 (GPL-3.
 
     println!(
         "Sentences:          {} -> {}",
-        report.orig.sentences, report.summary_stats.sentences
+        report.orig_stats.sentences, report.summary_stats.sentences
     );
     println!(
         "Words:              {} -> {}",
-        report.orig.words, report.summary_stats.words
+        report.orig_stats.words, report.summary_stats.words
     );
     println!(
         "Chars:              {} -> {}",
-        report.orig.chars, report.summary_stats.chars
+        report.orig_stats.chars, report.summary_stats.chars
     );
 
     println!("\n=== SEO Metrics & Keywords ===");

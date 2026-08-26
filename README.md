@@ -62,7 +62,7 @@ Rust is popular for web builds, network applications, and embedded systems.
     println!("\n=== Metrics ===");
     println!("Target cut: {:.1}%", report.metrics.target_cut * 100.0);
     println!("Actual cut: {:.2}%", report.metrics.cut_percentage * 100.0);
-    println!("Original chars: {}", report.orig.chars);
+    println!("Original chars: {}", report.orig_stats.chars);
     println!("Summary chars:  {}", report.summary_stats.chars);
 
     println!("\n=== Top Keywords ===");

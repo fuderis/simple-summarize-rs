@@ -39,7 +39,7 @@ pub struct SummaryReport {
     /// Generated text summary.
     pub summary: String,
     /// Statistical metrics of the original text.
-    pub orig: TextStats,
+    pub orig_stats: TextStats,
     /// Statistical metrics of the generated summary.
     pub summary_stats: TextStats,
     /// Compression metrics comparing original text and summary.
