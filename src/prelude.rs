@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
-pub use crate::{ StdResult, Result, Error, summarize_text, parse_keywords };
+pub use std::result::Result as StdResult;
+pub type DynError = Box<dyn std::error::Error + Send + Sync + 'static>;
+pub type Result<T> = std::result::Result<T, DynError>;
 
-pub(crate) use macron::{ *, hash_map as map };
-pub(crate) use std::collections::HashMap;
-pub(crate) use std::format as fmt;
-pub(crate) use std::path::PathBuf;
+pub use macron::*;
+// pub use std::{collections::HashMap, path::PathBuf};

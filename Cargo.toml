@@ -1,18 +1,23 @@
-[dependencies]
-distance = "0.4.0"
-
-[dependencies.macron]
-features = ["derive", "string", "collections"]
-version = "^0.1.10"
-
 [package]
-authors = ["Fuderis <t.me/fuderis>"]
-categories = ["development-tools"]
-description = "Fast extractive text summarizer in Rust (with 30-70% compression)."
-edition = "2024"
-keywords = ["text", "summarize"]
-license = "MIT"
 name = "simple-summarize"
-readme = "README.md"
+description = "Fast extractive text/markdown summarizer (no LLM)."
+keywords = ["text", "markdown", "summarize", "compress"]
+categories = ["development-tools"]
+version = "0.2.0"
+authors = ["Bulat Sh. <synapdrake@ya.ru>"]
 repository = "https://github.com/fuderis/rs-simple-summarize"
-version = "0.1.0"
+edition = "2024"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+macron = { version = "^0.5.0", features = ["derive", "string", "collections"] }
+ahash = { version = "0.8.12", features = ["serde"] }
+distance = "0.4.0"
+serde = { version = "1.0.229", features = ["derive"] }
+markdown = { version = "1.0.0", optional = true }
+regex = { version = "1.13.1", optional = true }
+
+[features]
+full = ["markdown"]
+markdown = ["dep:markdown", "dep:regex"]
